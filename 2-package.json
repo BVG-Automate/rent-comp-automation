@@ -1,0 +1,21 @@
+{
+  "name": "rent-comp-automation",
+  "version": "1.0.0",
+  "description": "Rent Comp PDF to Excel Automation",
+  "main": "index.js",
+  "scripts": {
+    "start": "netlify dev",
+    "build": "echo 'No build needed'"
+  },
+  "keywords": ["rent", "comp", "automation"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "busboy": "^1.3.0",
+    "pdf-parse": "^1.1.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

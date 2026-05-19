@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rent Comp Automation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f8f8f8;
+      color: #2c2c2c;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .header {
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .header p {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .dropzone {
+      border: 2px dashed #ddd;
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #fafafa;
+      margin-bottom: 1.5rem;
+    }
+
+    .dropzone:hover {
+      border-color: #007bff;
+      background: #f0f7ff;
+    }
+
+    .dropzone.drag-over {
+      border-color: #007bff;
+      background: #e7f3ff;
+    }
+
+    .dropzone-icon {
+      font-size: 48px;
+      margin-bottom: 1rem;
+      color: #666;
+    }
+
+    .dropzone h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #2c2c2c;
+    }
+
+    .dropzone p {
+      font-size: 13px;
+      color: #666;
+      margin: 0;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .status {
+      padding: 1.25rem;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      margin-bottom: 1.5rem;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.processing {
+      background: #f0f7ff;
+      border-color: #007bff;
+    }
+
+    .status.success {
+      background: #f0fdf4;
+      border-color: #22c55e;
+    }
+
+    .status.error {
+      background: #fef2f2;
+      border-color: #ef4444;
+    }
+
+    .status-text {
+      font-size: 14px;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      color: #2c2c2c;
+    }
+
+    .status.error .status-text {
+      color: #dc2626;
+    }
+
+    .status.success .status-text {
+      color: #16a34a;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background: #e5e5e5;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #007bff;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .status.success .progress-fill {
+      background: #22c55e;
+    }
+
+    .results {
+      margin-top: 1.5rem;
+    }
+
+    .comp-summary {
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 1px solid #e5e5e5;
+    }
+
+    .comp-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      font-size: 13px;
+      border-bottom: 1px solid #e5e5e5;
+    }
+
+    .comp-item:last-child {
+      border-bottom: none;
+    }
+
+    .comp-label {
+      color: #666;
+      font-weight: 600;
+    }
+
+    .comp-value {
+      color: #2c2c2c;
+      text-align: right;
+      flex: 1;
+      margin-left: 1rem;
+    }
+
+    .note {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #f9f9f9;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .download-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 1.5rem;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .download-btn:hover {
+      background: #0056b3;
+    }
+
+    .download-btn:active {
+      transform: scale(0.98);
+    }
+
+    .download-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Rent Comp Automation</h1>
+      <p>Upload your Real Quantum PDF to extract comparables and auto-populate your Excel template.</p>
+    </div>
+
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-icon">📄</div>
+      <h2>Drop your PDF here</h2>
+      <p>or click to browse</p>
+      <input type="file" id="fileInput" accept=".pdf">
+    </div>
+
+    <div class="status" id="status">
+      <div class="status-text" id="statusText">Processing...</div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+
+    <div class="results" id="results"></div>
+  </div>
+
+  <script>
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const status = document.getElementById('status');
+    const statusText = document.getElementById('statusText');
+    const progressFill = document.getElementById('progressFill');
+    const results = document.getElementById('results');
+
+    // Click to browse
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    // Drag and drop
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.classList.add('drag-over');
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('drag-over');
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.classList.remove('drag-over');
+      if (e.dataTransfer.files.length > 0) {
+        handlePDF(e.dataTransfer.files[0]);
+      }
+    });
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handlePDF(e.target.files[0]);
+      }
+    });
+
+    async function handlePDF(file) {
+      status.classList.add('show', 'processing');
+      status.classList.remove('success', 'error');
+      statusText.textContent = 'Uploading PDF...';
+      progressFill.style.width = '10%';
+      results.innerHTML = '';
+
+      try {
+        const formData = new FormData();
+        formData.append('pdf', file);
+
+        statusText.textContent = 'Processing on server...';
+        progressFill.style.width = '40%';
+
+        const response = await fetch('/.netlify/functions/process-pdf', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        progressFill.style.width = '90%';
+        statusText.textContent = 'Generating Excel...';
+
+        // Create download link
+        const link = document.createElement('a');
+        link.href = data.downloadUrl;
+        link.download = data.filename || 'rent_comp_populated.xlsx';
+
+        statusText.textContent = 'Success! Ready to download.';
+        progressFill.style.width = '100%';
+        status.classList.remove('processing');
+        status.classList.add('success');
+
+        showResults(data.comps, link);
+
+      } catch (error) {
+        statusText.textContent = `Error: ${error.message}`;
+        status.classList.remove('processing');
+        status.classList.add('error');
+        progressFill.style.width = '0%';
+      }
+    }
+
+    function showResults(comps, downloadLink) {
+      let html = '<div class="comp-summary">';
+      html += '<div style="font-weight: 600; margin-bottom: 1rem;">Comparables Extracted:</div>';
+
+      comps.forEach((comp) => {
+        html += '<div class="comp-item">';
+        html += `<span class="comp-label">Comp ${comp.comp_num}</span>`;
+        html += `<span class="comp-value">${comp.address}</span>`;
+        html += '</div>';
+      });
+
+      html += '</div>';
+      html += `<button class="download-btn" onclick="document.querySelector('a').click();">⬇️ Download Populated Excel</button>`;
+      html += '<div class="note">';
+      html += '✓ All ' + comps.length + ' comparables extracted and amenities detected.';
+      html += '<br>✓ Open the Excel file to add subject property info and adjust qualitative percentages.';
+      html += '<br>✓ Share with Nakoah to finalize.';
+      html += '</div>';
+
+      results.innerHTML = html;
+
+      // Re-attach the download link
+      const btn = document.querySelector('.download-btn');
+      btn.onclick = () => downloadLink.click();
+    }
+  </script>
+</body>
+</html>
